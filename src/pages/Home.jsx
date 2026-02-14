@@ -616,10 +616,13 @@ const Home = () => {
                   />
                   {course.price === 'Free' && (
                     <div 
-                      className="absolute top-3 left-3 text-white px-3 py-1 rounded text-sm font-medium shadow-md"
-                      style={{ backgroundColor: '#4F46E5' }}
+                      className="absolute top-3 left-3 text-white px-3 py-1 rounded text-sm font-medium shadow-md flex items-center gap-1"
+                      style={{ backgroundColor: '#10B981' }}
                     >
-                      Free
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Free Course
                     </div>
                   )}
                 </div>
@@ -643,7 +646,7 @@ const Home = () => {
                     <div>
                       <div 
                         className="text-xl font-bold"
-                        style={{ color: '#4F46E5' }}
+                        style={{ color: course.price === 'Free' ? '#10B981' : '#4F46E5' }}
                       >
                         {course.price}
                       </div>
@@ -651,13 +654,42 @@ const Home = () => {
                         <div className="text-sm text-gray-500 line-through">{course.discount}</div>
                       )}
                     </div>
-                    <button 
-                      className="px-4 py-2 rounded text-sm font-medium text-white hover:shadow-md transition-shadow"
-                      style={{ backgroundColor: '#4F46E5' }}
-                    >
-                      Details
-                    </button>
+                    
+                    {course.price === 'Free' ? (
+                      <button 
+                        className="px-4 py-2 rounded text-sm font-medium text-white hover:shadow-md transition-all duration-300 transform hover:scale-105 flex items-center gap-2 group"
+                        style={{ 
+                          background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
+                        }}
+                        onClick={() => {
+                          // এখানে ফ্রি কোর্স ক্লেইম করার ফাংশন আসবে
+                          console.log('Claiming free course:', course.title);
+                        }}
+                      >
+                        <svg className="w-4 h-4 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        Claim Now
+                      </button>
+                    ) : (
+                      <button 
+                        className="px-4 py-2 rounded text-sm font-medium text-white hover:shadow-md transition-shadow"
+                        style={{ backgroundColor: '#4F46E5' }}
+                      >
+                        Details
+                      </button>
+                    )}
                   </div>
+
+                  {/* Free Course Benefits Badge */}
+                  {course.price === 'Free' && (
+                    <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+                      <svg className="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>Lifetime access • Certificate • No cost</span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -871,7 +903,7 @@ const Home = () => {
           </div>
 
           <div className="text-center mt-8">
-            <button 
+            {/* <button 
               className="px-8 py-3 rounded-lg font-medium text-white hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 inline-flex items-center gap-2 group"
               style={{ 
                 backgroundColor: '#4F46E5',
@@ -882,7 +914,7 @@ const Home = () => {
               <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
-            </button>
+            </button> */}
           </div>
         </div>
       </section>

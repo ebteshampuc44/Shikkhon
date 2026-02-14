@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -8,16 +7,11 @@ const Navbar = () => {
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Courses', path: '/courses' },
-    { name: 'Categories', path: '/categories' },
     { name: 'Instructors', path: '/instructors' },
     { name: 'Blog', path: '/blog' },
     { name: 'Free Learning', path: '/free-learning' },
+    { name: 'My Class', path: '/my-class' }, // Added My Class
     { name: 'Contact', path: '/contact' },
-  ];
-
-  const categories = [
-    'Agriculture', 'Technology', 'Academic Education', 'Skill Development', 
-    'Business & Entrepreneurship', 'Job Preparation'
   ];
 
   return (
@@ -78,49 +72,6 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              
-              {/* Categories Dropdown */}
-              <div className="dropdown dropdown-hover">
-                <label 
-                  tabIndex={0} 
-                  className="px-3 py-2 rounded-lg text-sm font-medium cursor-pointer transition-all duration-300 hover:bg-white/20 flex items-center gap-1"
-                  style={{ 
-                    color: '#374151'
-                  }}
-                >
-                  Categories
-                  <svg 
-                    className="w-3.5 h-3.5" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </label>
-                
-                <div 
-                  tabIndex={0} 
-                  className="dropdown-content menu p-3 shadow-xl rounded-xl w-60 mt-2"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.98)',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                    boxShadow: '0 20px 40px rgba(31, 38, 135, 0.2)'
-                  }}
-                >
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {categories.map((cat, idx) => (
-                      <a 
-                        key={idx} 
-                        className="p-2.5 rounded-lg text-xs font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200 text-center"
-                      >
-                        {cat}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
               
               <div className="w-px h-5 mx-2" style={{ background: 'rgba(0, 0, 0, 0.1)' }}></div>
               
@@ -225,25 +176,6 @@ const Navbar = () => {
                     {link.name}
                   </Link>
                 ))}
-                
-                {/* Mobile Categories */}
-                <div className="px-3 py-2">
-                  <h3 className="font-bold mb-2 text-sm" style={{ color: '#4F46E5' }}>Categories</h3>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {categories.map((cat, idx) => (
-                      <a 
-                        key={idx} 
-                        className="p-2 rounded text-xs font-medium text-center hover:bg-indigo-50 transition-all duration-200"
-                        style={{ 
-                          color: '#374151',
-                          border: '1px solid #e5e7eb'
-                        }}
-                      >
-                        {cat}
-                      </a>
-                    ))}
-                  </div>
-                </div>
                 
                 <div className="divider my-1" style={{ borderColor: '#e5e7eb' }}></div>
                 
