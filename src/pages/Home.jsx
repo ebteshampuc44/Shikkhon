@@ -251,15 +251,6 @@ const Home = () => {
     }
   };
 
-  const categories = [
-    { icon: '🌾', name: 'Agriculture', count: 156 },
-    { icon: '💻', name: 'Technology', count: 342 },
-    { icon: '📚', name: 'Education', count: 289 },
-    { icon: '🔧', name: 'Skills', count: 187 },
-    { icon: '💼', name: 'Business', count: 124 },
-    { icon: '🎯', name: 'Jobs', count: 231 },
-  ];
-
   const courses = [
     { 
       title: 'Digital Marketing', 
@@ -501,7 +492,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Categories Section with Mouse-Controlled Rocket */}
+      {/* Rocket Section with Mouse Control */}
       <section ref={rocketSectionRef} className="py-16 relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -564,140 +555,13 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Mouse Position Indicator */}
-            <div className="absolute right-4 top-4 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg z-30 border border-purple-100">
-              <p className="text-sm text-gray-600">
-                Mouse Position: <span className="font-bold text-purple-600">{Math.round(rocketPosition)}%</span>
-              </p>
-            </div>
-
-            {/* Left Side Categories - Agriculture, Technology, Education */}
+            {/* Empty space for future categories */}
             <div className="absolute left-0 md:left-[15%] top-0 w-[45%] md:w-[30%] space-y-16 md:space-y-24">
-              {categories.slice(0, 3).map((category, index) => {
-                // Calculate connection line activation based on rocket position
-                const connectionThreshold = (index + 1) * 25; // 25%, 50%, 75%
-                const isConnected = rocketPosition >= connectionThreshold - 10;
-                const connectionWidth = isConnected ? 100 : 0;
-                
-                return (
-                  <div
-                    key={index}
-                    className="relative group"
-                    style={{ marginTop: index === 0 ? '2rem' : '0' }}
-                  >
-                    {/* Connection Line from Category to Main Line */}
-                    <div className="absolute right-0 top-1/2 w-[100%] md:w-[200%] h-0.5 z-10">
-                      {/* Base Line */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-200 to-transparent"></div>
-                      
-                      {/* Animated Connection Line - activates based on rocket position */}
-                      <div 
-                        className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 transition-all duration-300"
-                        style={{ 
-                          width: `${connectionWidth}%`,
-                          opacity: isConnected ? 0.8 : 0,
-                          boxShadow: '0 0 10px rgba(139, 92, 246, 0.5)'
-                        }}
-                      ></div>
-                    </div>
-
-                    {/* Category Card */}
-                    <div className={`relative bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 border ${isConnected ? 'border-purple-400' : 'border-purple-100'}`}>
-                      {/* Icon */}
-                      <div className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center text-3xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg">
-                        {category.icon}
-                      </div>
-                      
-                      {/* Content */}
-                      <div className="text-center">
-                        <h3 className="font-bold text-gray-900 mb-1">{category.name}</h3>
-                        <div className="flex items-center justify-center gap-2">
-                          <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                            {category.count}
-                          </span>
-                          <span className="text-gray-500 text-sm">courses</span>
-                        </div>
-                        
-                        {/* Progress Bar */}
-                        <div className="mt-3 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full transition-all duration-1000"
-                            style={{ 
-                              width: isConnected ? `${Math.min((category.count / 400) * 100, 100)}%` : '0%',
-                              opacity: isConnected ? 1 : 0
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {/* Space reserved for future categories */}
             </div>
 
-            {/* Right Side Categories - Skills, Business, Jobs */}
             <div className="absolute right-0 md:right-[15%] top-0 w-[45%] md:w-[30%] space-y-16 md:space-y-24">
-              {categories.slice(3, 6).map((category, index) => {
-                // Calculate connection line activation based on rocket position
-                const connectionThreshold = (index + 4) * 20; // 80%, 100%, 120% (adjusted)
-                const isConnected = rocketPosition >= connectionThreshold - 15;
-                const connectionWidth = isConnected ? 100 : 0;
-                
-                return (
-                  <div
-                    key={index}
-                    className="relative group"
-                    style={{ marginTop: index === 0 ? '2rem' : '0' }}
-                  >
-                    {/* Connection Line from Category to Main Line */}
-                    <div className="absolute left-0 top-1/2 w-[100%] md:w-[200%] h-0.5 z-10">
-                      {/* Base Line */}
-                      <div className="absolute inset-0 bg-gradient-to-l from-purple-200 to-transparent"></div>
-                      
-                      {/* Animated Connection Line - activates based on rocket position */}
-                      <div 
-                        className="absolute inset-0 bg-gradient-to-l from-purple-600 to-indigo-600 transition-all duration-300"
-                        style={{ 
-                          width: `${connectionWidth}%`,
-                          opacity: isConnected ? 0.8 : 0,
-                          right: 0,
-                          boxShadow: '0 0 10px rgba(139, 92, 246, 0.5)'
-                        }}
-                      ></div>
-                    </div>
-
-                    {/* Category Card */}
-                    <div className={`relative bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 border ${isConnected ? 'border-purple-400' : 'border-purple-100'}`}>
-                      {/* Icon */}
-                      <div className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center text-3xl bg-gradient-to-br from-indigo-500 to-pink-600 text-white shadow-lg">
-                        {category.icon}
-                      </div>
-                      
-                      {/* Content */}
-                      <div className="text-center">
-                        <h3 className="font-bold text-gray-900 mb-1">{category.name}</h3>
-                        <div className="flex items-center justify-center gap-2">
-                          <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-pink-600 bg-clip-text text-transparent">
-                            {category.count}
-                          </span>
-                          <span className="text-gray-500 text-sm">courses</span>
-                        </div>
-                        
-                        {/* Progress Bar */}
-                        <div className="mt-3 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-indigo-500 to-pink-600 rounded-full transition-all duration-1000"
-                            style={{ 
-                              width: isConnected ? `${Math.min((category.count / 400) * 100, 100)}%` : '0%',
-                              opacity: isConnected ? 1 : 0
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {/* Space reserved for future categories */}
             </div>
 
             {/* Floating Particles - React to mouse position */}
@@ -718,17 +582,6 @@ const Home = () => {
                 }}
               ></div>
             ))}
-          </div>
-
-          {/* Mouse Control Instructions */}
-          <div className="mt-12 text-center">
-        
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 rounded-full">
-              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-              </svg>
-         
-            </div>
           </div>
         </div>
       </section>
