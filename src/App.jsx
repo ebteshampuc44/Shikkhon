@@ -9,7 +9,8 @@ import Instructors from './pages/Instructors';
 import Blog from './pages/Blog';
 import FreeLearning from './pages/FreeLearning';
 import Contact from './pages/Contact';
-import MyClass from './pages/MyClass'; // Import My Class page
+import MyClass from './pages/MyClass';
+import CoursePlaylist from './pages/CoursePlaylist'; // নতুন ইম্পোর্ট
 
 function App() {
   return (
@@ -23,7 +24,8 @@ function App() {
         <Route path="blog" element={<Blog />} />
         <Route path="free-learning" element={<FreeLearning />} />
         <Route path="contact" element={<Contact />} />
-        <Route path="my-class" element={<MyClass />} /> {/* Add My Class route */}
+        <Route path="my-class" element={<MyClass />} />
+        <Route path="course-playlist/:courseId" element={<CoursePlaylist />} /> {/* নতুন রুট */}
       </Route>
     </Routes>
   );

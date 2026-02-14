@@ -253,6 +253,7 @@ const Home = () => {
 
   const courses = [
     { 
+      id: 1,
       title: 'Digital Marketing', 
       instructor: 'Ahmed Rasel', 
       rating: 4.8, 
@@ -264,6 +265,7 @@ const Home = () => {
       lessons: 24
     },
     { 
+      id: 2,
       title: 'Agriculture Management', 
       instructor: 'Dr. Farhana Islam', 
       rating: 4.9, 
@@ -275,6 +277,7 @@ const Home = () => {
       lessons: 16
     },
     { 
+      id: 3,
       title: 'Freelancing Guide', 
       instructor: 'Zubayer Hossain', 
       rating: 4.7, 
@@ -286,6 +289,7 @@ const Home = () => {
       lessons: 30
     },
     { 
+      id: 4,
       title: 'Programming Basics', 
       instructor: 'Tanvir Hasan', 
       rating: 4.6, 
@@ -555,15 +559,6 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Empty space for future categories */}
-            <div className="absolute left-0 md:left-[15%] top-0 w-[45%] md:w-[30%] space-y-16 md:space-y-24">
-              {/* Space reserved for future categories */}
-            </div>
-
-            <div className="absolute right-0 md:right-[15%] top-0 w-[45%] md:w-[30%] space-y-16 md:space-y-24">
-              {/* Space reserved for future categories */}
-            </div>
-
             {/* Floating Particles - React to mouse position */}
             {[...Array(15)].map((_, i) => (
               <div
@@ -662,12 +657,11 @@ const Home = () => {
                           background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
                         }}
                         onClick={() => {
-                          // এখানে ফ্রি কোর্স ক্লেইম করার ফাংশন আসবে
-                          console.log('Claiming free course:', course.title);
+                          alert('✅ Course claimed successfully! Check your My Classes page.');
                         }}
                       >
                         <svg className="w-4 h-4 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         Claim Now
                       </button>
@@ -900,21 +894,6 @@ const Home = () => {
                 aria-label={`Go to slide ${index + 1}`}
               />
             ))}
-          </div>
-
-          <div className="text-center mt-8">
-            {/* <button 
-              className="px-8 py-3 rounded-lg font-medium text-white hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 inline-flex items-center gap-2 group"
-              style={{ 
-                backgroundColor: '#4F46E5',
-                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'
-              }}
-            >
-              View All Free Courses
-              <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </button> */}
           </div>
         </div>
       </section>
