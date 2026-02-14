@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 const Home = () => {
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [mouseY, setMouseY] = useState(0);
+  const [rocketPosition, setRocketPosition] = useState(0);
   const [showButton, setShowButton] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   
@@ -12,6 +13,7 @@ const Home = () => {
   const [prevTranslate, setPrevTranslate] = useState(0);
   const sliderRef = useRef(null);
   const autoSlideTimerRef = useRef(null);
+  const rocketSectionRef = useRef(null);
   
   // State for counting numbers
   const [counts, setCounts] = useState({
@@ -21,13 +23,37 @@ const Home = () => {
     satisfaction: 0
   });
 
+  // Track mouse position for rocket
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (rocketSectionRef.current) {
+        const sectionRect = rocketSectionRef.current.getBoundingClientRect();
+        const sectionTop = sectionRect.top;
+        const sectionHeight = sectionRect.height;
+        
+        // Calculate mouse position relative to section (0 to 100%)
+        const relativeY = ((e.clientY - sectionTop) / sectionHeight) * 100;
+        
+        // Clamp between 0 and 100
+        const clampedY = Math.min(100, Math.max(0, relativeY));
+        setMouseY(clampedY);
+        
+        // Update rocket position - reverse direction (top to bottom)
+        setRocketPosition(clampedY);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Handle scroll for button
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
       const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       const scrollPercent = (scrollTop / scrollHeight) * 100;
       
-      setScrollProgress(scrollPercent);
       setShowButton(scrollPercent > 10);
       
       const progressCircle = document.getElementById('progressCircle');
@@ -55,7 +81,7 @@ const Home = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Counting animation effect - Faster speed
+  // Counting animation effect
   useEffect(() => {
     const targetNumbers = {
       students: 50000,
@@ -64,7 +90,7 @@ const Home = () => {
       satisfaction: 95
     };
 
-    const duration = 1000; // 1 second
+    const duration = 1000;
     const steps = 40;
     const interval = duration / steps;
 
@@ -83,7 +109,6 @@ const Home = () => {
           satisfaction: Math.min(Math.floor(targetNumbers.satisfaction * progress), targetNumbers.satisfaction)
         });
       } else {
-        // Ensure final numbers are exact
         setCounts({
           students: targetNumbers.students,
           courses: targetNumbers.courses,
@@ -108,12 +133,9 @@ const Home = () => {
     };
   }, []);
 
-  // Update auto slide when activeSlide changes
   useEffect(() => {
     setCurrentTranslate(-activeSlide * 100);
     setPrevTranslate(-activeSlide * 100);
-    
-    // Reset auto slide timer when manually changing slide
     resetAutoSlide();
   }, [activeSlide]);
 
@@ -126,7 +148,7 @@ const Home = () => {
       if (!isDragging) {
         setActiveSlide((prev) => (prev + 1) % 3);
       }
-    }, 5000); // Change slide every 5 seconds
+    }, 5000);
   };
 
   const resetAutoSlide = () => {
@@ -144,7 +166,6 @@ const Home = () => {
     setPrevTranslate(currentTranslate);
     sliderRef.current.style.cursor = 'grabbing';
     
-    // Pause auto slide while dragging
     if (autoSlideTimerRef.current) {
       clearInterval(autoSlideTimerRef.current);
     }
@@ -158,9 +179,8 @@ const Home = () => {
     const diff = currentX - startX;
     const newTranslate = prevTranslate + (diff / sliderRef.current.offsetWidth) * 100;
     
-    // Limit sliding range
     const maxTranslate = 0;
-    const minTranslate = -200; // 3 slides = -200%
+    const minTranslate = -200;
     
     if (newTranslate <= maxTranslate && newTranslate >= minTranslate) {
       setCurrentTranslate(newTranslate);
@@ -172,15 +192,10 @@ const Home = () => {
     setIsDragging(false);
     sliderRef.current.style.cursor = 'grab';
     
-    // Determine which slide to snap to
     const slideWidth = 100;
     const slideIndex = Math.round(Math.abs(currentTranslate) / slideWidth);
-    
-    // Ensure valid index
     const newIndex = Math.min(Math.max(slideIndex, 0), 2);
     setActiveSlide(newIndex);
-    
-    // Restart auto slide after dragging
     resetAutoSlide();
   };
 
@@ -190,14 +205,12 @@ const Home = () => {
     }
   };
 
-  // Touch Handlers for Mobile
   const handleTouchStart = (e) => {
     e.preventDefault();
     setIsDragging(true);
     setStartX(e.touches[0].pageX - sliderRef.current.offsetLeft);
     setPrevTranslate(currentTranslate);
     
-    // Pause auto slide while touching
     if (autoSlideTimerRef.current) {
       clearInterval(autoSlideTimerRef.current);
     }
@@ -211,7 +224,6 @@ const Home = () => {
     const diff = currentX - startX;
     const newTranslate = prevTranslate + (diff / sliderRef.current.offsetWidth) * 100;
     
-    // Limit sliding range
     const maxTranslate = 0;
     const minTranslate = -200;
     
@@ -225,15 +237,10 @@ const Home = () => {
     if (!isDragging) return;
     setIsDragging(false);
     
-    // Determine which slide to snap to
     const slideWidth = 100;
     const slideIndex = Math.round(Math.abs(currentTranslate) / slideWidth);
-    
-    // Ensure valid index
     const newIndex = Math.min(Math.max(slideIndex, 0), 2);
     setActiveSlide(newIndex);
-    
-    // Restart auto slide after touch
     resetAutoSlide();
   };
 
@@ -335,7 +342,6 @@ const Home = () => {
     },
   ];
 
-  // SVG Icons for stats
   const StatsIcons = {
     Students: () => (
       <svg className="w-8 h-8 mx-auto mb-2" style={{ color: '#4F46E5' }} fill="currentColor" viewBox="0 0 24 24">
@@ -361,7 +367,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section - ফিক্সড ভার্সন */}
+      {/* Hero Section */}
       <section className="relative pt-24 md:pt-32 pb-16 md:pb-24 overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
@@ -370,7 +376,6 @@ const Home = () => {
           <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full opacity-20" 
                style={{ backgroundColor: '#10B981' }}></div>
           
-          {/* Floating Shapes */}
           <div className="absolute top-1/4 left-10 w-16 h-16 rounded-lg rotate-12 animate-pulse"
                style={{ backgroundColor: 'rgba(79, 70, 229, 0.15)' }}></div>
           <div className="absolute bottom-1/4 right-20 w-12 h-12 rounded-full animate-bounce"
@@ -379,7 +384,6 @@ const Home = () => {
                style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)' }}></div>
         </div>
 
-        {/* Gradient Background */}
         <div className="absolute inset-0" 
              style={{
                background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(139, 92, 246, 0.08) 50%, rgba(236, 72, 153, 0.05) 100%)'
@@ -388,8 +392,6 @@ const Home = () => {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center mt-8 md:mt-12">
-            
-            {/* Main Heading with Gradient */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
               <span className="block">Learn in Bangla,</span>
               <span className="block mt-2">
@@ -399,7 +401,6 @@ const Home = () => {
               </span>
             </h1>
 
-            {/* Animated Subheading - মোবাইলের জন্য ফিক্সড */}
             <div className="h-auto min-h-[80px] md:h-20 mb-8 md:mb-10">
               <p className="text-xl md:text-2xl text-gray-700 mb-4 px-4 md:px-0 leading-relaxed">
                 <span className="typing-effect block md:inline">
@@ -408,7 +409,6 @@ const Home = () => {
               </p>
             </div>
 
-            {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 max-w-2xl mx-auto">
               {[
                 { number: '1000+', label: 'Bangla Courses', color: 'from-purple-500 to-indigo-500' },
@@ -426,7 +426,6 @@ const Home = () => {
               ))}
             </div>
 
-            {/* CTA Buttons with Hover Effects */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
                 className="group relative px-8 py-4 rounded-xl font-medium text-lg text-white overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
@@ -462,28 +461,6 @@ const Home = () => {
                 <span className="absolute inset-0 bg-gradient-to-r from-purple-50 to-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
               </button>
             </div>
-
-            {/* Trust Indicators */}
-            {/* <div className="mt-16 pt-8 border-t border-gray-200">
-              <p className="text-gray-600 mb-4">Trusted by</p>
-              <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-                <svg className="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 7V3H2v14h20V7H12zM6 19H4v2h16v-2H6z"/>
-                </svg>
-                <svg className="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
-                </svg>
-                <svg className="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
-                </svg>
-                <svg className="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-8 7c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
-                </svg>
-                <svg className="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                </svg>
-              </div>
-            </div> */}
           </div>
         </div>
       </section>
@@ -524,36 +501,51 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Categories Section with Rocket Growing Roots */}
-      <section className="py-16">
+      {/* Categories Section with Mouse-Controlled Rocket */}
+      <section ref={rocketSectionRef} className="py-16 relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Explore Learning Paths</h2>
-            <p className="text-gray-600">Launch your journey from our rocket to growing knowledge roots</p>
+            <p className="text-gray-600">Move your mouse up and down to control the rocket!</p>
           </div>
           
-          {/* Rocket with Growing Roots */}
-          <div className="relative mb-20">
-            {/* Rocket at Center */}
-            <div className="absolute left-1/2 top-0 transform -translate-x-1/2 z-20">
+          <div className="relative min-h-[600px] md:min-h-[700px]">
+            {/* Vertical Line */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full z-0">
+              <div className="absolute inset-0 bg-gradient-to-b from-purple-200 via-indigo-200 to-transparent"></div>
+              
+              {/* Animated Line that follows mouse */}
+              <div 
+                className="absolute top-0 left-0 w-full bg-gradient-to-b from-purple-600 via-indigo-600 to-pink-600 transition-all duration-100 ease-out"
+                style={{ 
+                  height: `${rocketPosition}%`,
+                  boxShadow: '0 0 20px rgba(139, 92, 246, 0.5)'
+                }}
+              >
+                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+              </div>
+            </div>
+
+            {/* Mouse-Controlled Rocket */}
+            <div 
+              className="absolute left-1/2 transform -translate-x-1/2 z-20 transition-all duration-100 ease-out"
+              style={{ 
+                top: `${rocketPosition}%`,
+              }}
+            >
               <div className="relative">
                 {/* Rocket Body */}
-                <div className="text-5xl animate-bounce duration-1000">🚀</div>
-                
-                {/* Rocket Base - Connection Point for Roots */}
-                <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
-                  <div className="w-8 h-8 rounded-full"
-                       style={{ backgroundColor: 'rgba(79, 70, 229, 0.2)' }}>
-                  </div>
+                <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
+                  🚀
                 </div>
                 
                 {/* Rocket Flame */}
-                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
+                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
                   <div className="flex flex-col items-center">
                     {[...Array(3)].map((_, i) => (
                       <div 
                         key={i}
-                        className="w-4 h-8 rounded-t-full animate-pulse"
+                        className="w-3 h-6 rounded-t-full animate-pulse"
                         style={{ 
                           backgroundColor: i === 0 ? '#F59E0B' : 
                                          i === 1 ? '#F97316' : '#EF4444',
@@ -565,241 +557,177 @@ const Home = () => {
                     ))}
                   </div>
                 </div>
+
+                {/* Connection Points */}
+                <div className="absolute -left-1 top-1/2 w-4 h-0.5 bg-purple-500"></div>
+                <div className="absolute -right-1 top-1/2 w-4 h-0.5 bg-purple-500"></div>
               </div>
             </div>
-            
-            {/* Central Connection Point */}
-            <div className="absolute left-1/2 top-16 transform -translate-x-1/2 z-10">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center"
-                   style={{ 
-                     backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                     border: '2px dashed rgba(139, 92, 246, 0.3)'
-                   }}>
-                <div className="w-8 h-8 rounded-full animate-pulse"
-                     style={{ backgroundColor: 'rgba(79, 70, 229, 0.3)' }}></div>
-              </div>
+
+            {/* Mouse Position Indicator */}
+            <div className="absolute right-4 top-4 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg z-30 border border-purple-100">
+              <p className="text-sm text-gray-600">
+                Mouse Position: <span className="font-bold text-purple-600">{Math.round(rocketPosition)}%</span>
+              </p>
             </div>
-            
-            {/* Main Roots Growing from Rocket */}
-            <div className="absolute left-1/2 top-32 transform -translate-x-1/2 z-0 w-full">
-              {/* Main Root Trunk */}
-              <div className="absolute left-1/2 transform -translate-x-1/2 h-64 w-1"
-                   style={{ 
-                     background: 'linear-gradient(to bottom, transparent, #8B5CF6, transparent)',
-                     opacity: 0.3
-                   }}>
-              </div>
-              
-              {/* Left Side Roots */}
-              <div className="absolute left-1/2 top-0">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={`left-${i}`}
-                    className="absolute"
-                    style={{
-                      left: '-120px',
-                      top: `${40 + (i * 80)}px`,
-                      width: '120px',
-                      height: '2px',
-                      transform: `rotate(${-30 - (i * 10)}deg)`,
-                      transformOrigin: 'right center',
-                      background: `linear-gradient(to left, transparent, #7C3AED)`,
-                      opacity: 0.4 + (i * 0.1)
-                    }}
-                  ></div>
-                ))}
-              </div>
-              
-              {/* Right Side Roots */}
-              <div className="absolute left-1/2 top-0">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={`right-${i}`}
-                    className="absolute"
-                    style={{
-                      left: '0',
-                      top: `${40 + (i * 80)}px`,
-                      width: '120px',
-                      height: '2px',
-                      transform: `rotate(${30 + (i * 10)}deg)`,
-                      transformOrigin: 'left center',
-                      background: `linear-gradient(to right, transparent, #7C3AED)`,
-                      opacity: 0.4 + (i * 0.1)
-                    }}
-                  ></div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Floating Particles around Rocket */}
-            {[...Array(20)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute rounded-full animate-pulse"
-                style={{
-                  width: `${Math.random() * 3 + 1}px`,
-                  height: `${Math.random() * 3 + 1}px`,
-                  backgroundColor: `rgba(${Math.random() > 0.5 ? '139, 92, 246' : '79, 70, 229'}, 0.6)`,
-                  left: `${40 + Math.random() * 20}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${i * 100}ms`,
-                  animationDuration: `${Math.random() * 3 + 2}s`
-                }}
-              ></div>
-            ))}
-          </div>
-          
-          {/* Categories as End Points of Roots */}
-          <div className="mt-64">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-              {categories.map((category, index) => {
-                const isLeft = index % 2 === 0;
-                const row = Math.floor(index / 2);
-                const delay = index * 100;
+
+            {/* Left Side Categories - Agriculture, Technology, Education */}
+            <div className="absolute left-0 md:left-[15%] top-0 w-[45%] md:w-[30%] space-y-16 md:space-y-24">
+              {categories.slice(0, 3).map((category, index) => {
+                // Calculate connection line activation based on rocket position
+                const connectionThreshold = (index + 1) * 25; // 25%, 50%, 75%
+                const isConnected = rocketPosition >= connectionThreshold - 10;
+                const connectionWidth = isConnected ? 100 : 0;
                 
                 return (
                   <div
                     key={index}
-                    className={`relative ${isLeft ? 'md:mr-auto' : 'md:ml-auto'} transform hover:scale-105 transition-all duration-300`}
-                    style={{ 
-                      animationDelay: `${delay}ms`,
-                      marginTop: `${row * 20}px`
-                    }}
+                    className="relative group"
+                    style={{ marginTop: index === 0 ? '2rem' : '0' }}
                   >
-                    {/* Root Connection Line (Animated Growth) */}
-                    <div 
-                      className={`absolute top-1/2 w-24 h-0.5 hidden md:block ${isLeft ? '-left-24' : '-right-24'}`}
-                      style={{ 
-                        backgroundColor: 'rgba(139, 92, 246, 0.3)',
-                        transformOrigin: isLeft ? 'right center' : 'left center',
-                        transform: 'scaleX(0)',
-                        animation: `growLine 0.8s ease-out ${delay + 300}ms forwards`
-                      }}
-                    ></div>
-                    
-                    {/* Category Node */}
-                    <div className="relative group">
-                      {/* Pulsing Effect */}
-                      <div className="absolute inset-0 rounded-full animate-ping opacity-20"
-                           style={{ 
-                             backgroundColor: '#8B5CF6',
-                             animationDelay: `${delay}ms`,
-                             animationDuration: '2s'
-                           }}>
-                      </div>
+                    {/* Connection Line from Category to Main Line */}
+                    <div className="absolute right-0 top-1/2 w-[100%] md:w-[200%] h-0.5 z-10">
+                      {/* Base Line */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-200 to-transparent"></div>
                       
-                      {/* Root End Point */}
+                      {/* Animated Connection Line - activates based on rocket position */}
                       <div 
-                        className="relative w-20 h-20 mx-auto mb-3 rounded-full flex items-center justify-center text-3xl shadow-lg transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl cursor-pointer"
-                        style={{
-                          backgroundColor: index % 3 === 0 ? '#4F46E5' : 
-                                          index % 3 === 1 ? '#7C3AED' : '#8B5CF6',
-                          boxShadow: '0 4px 20px rgba(139, 92, 246, 0.3)'
+                        className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 transition-all duration-300"
+                        style={{ 
+                          width: `${connectionWidth}%`,
+                          opacity: isConnected ? 0.8 : 0,
+                          boxShadow: '0 0 10px rgba(139, 92, 246, 0.5)'
                         }}
-                      >
+                      ></div>
+                    </div>
+
+                    {/* Category Card */}
+                    <div className={`relative bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 border ${isConnected ? 'border-purple-400' : 'border-purple-100'}`}>
+                      {/* Icon */}
+                      <div className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center text-3xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg">
                         {category.icon}
-                        
-                        {/* Glow Effect on Hover */}
-                        <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                             style={{
-                               boxShadow: '0 0 30px rgba(139, 92, 246, 0.5)'
-                             }}>
-                        </div>
                       </div>
                       
-                      {/* Category Details */}
+                      {/* Content */}
                       <div className="text-center">
-                        <h3 className="font-bold text-gray-900 mb-1 text-sm md:text-base">{category.name}</h3>
-                        
-                        {/* Animated Course Count */}
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                          <div className="relative">
-                            <div 
-                              className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
-                              style={{ 
-                                opacity: 0,
-                                animation: `fadeIn 0.5s ease-out ${delay + 500}ms forwards`
-                              }}
-                            >
-                              {category.count}
-                            </div>
-                          </div>
+                        <h3 className="font-bold text-gray-900 mb-1">{category.name}</h3>
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                            {category.count}
+                          </span>
                           <span className="text-gray-500 text-sm">courses</span>
                         </div>
                         
-                        {/* Growth Bar */}
-                        <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                        {/* Progress Bar */}
+                        <div className="mt-3 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
                           <div 
-                            className="h-full rounded-full transition-all duration-1000 ease-out"
-                            style={{
-                              width: '0%',
-                              backgroundColor: index % 3 === 0 ? '#4F46E5' : 
-                                              index % 3 === 1 ? '#7C3AED' : '#8B5CF6',
-                              animation: `growWidth 1s ease-out ${delay + 700}ms forwards`,
-                              animationFillMode: 'forwards'
+                            className="h-full bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full transition-all duration-1000"
+                            style={{ 
+                              width: isConnected ? `${Math.min((category.count / 400) * 100, 100)}%` : '0%',
+                              opacity: isConnected ? 1 : 0
                             }}
-                            data-width={`${Math.min((category.count / 400) * 100, 100)}%`}
                           ></div>
-                        </div>
-                        
-                        {/* Tiny Root Fibers */}
-                        <div className="absolute top-10 hidden md:block">
-                          {[...Array(2)].map((_, i) => (
-                            <div
-                              key={i}
-                              className={`absolute h-px w-3 ${isLeft ? '-left-8' : '-right-8'}`}
-                              style={{
-                                backgroundColor: 'rgba(139, 92, 246, 0.2)',
-                                top: `${i * 4}px`,
-                                transform: isLeft ? 'rotate(10deg)' : 'rotate(-10deg)',
-                                animation: `fadeIn 0.5s ease-out ${delay + 900 + (i * 100)}ms forwards`,
-                                opacity: 0
-                              }}
-                            ></div>
-                          ))}
                         </div>
                       </div>
                     </div>
-                    
-                    {/* Interactive Root Growth on Hover */}
-                    <div 
-                      className={`absolute top-1/2 w-12 h-0.5 hidden md:block ${isLeft ? '-left-36' : '-right-36'} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-                      style={{ 
-                        backgroundColor: '#7C3AED',
-                        transform: `scaleX(${isLeft ? -1 : 1})`
-                      }}
-                    ></div>
                   </div>
                 );
               })}
             </div>
-            
-            {/* Ground Level with Soil */}
-            <div className="mt-20 pt-12 border-t border-gray-200 relative">
-              {/* Soil Texture */}
-              <div className="absolute -top-6 left-0 right-0 h-6 flex justify-center">
-                {[...Array(25)].map((_, i) => (
+
+            {/* Right Side Categories - Skills, Business, Jobs */}
+            <div className="absolute right-0 md:right-[15%] top-0 w-[45%] md:w-[30%] space-y-16 md:space-y-24">
+              {categories.slice(3, 6).map((category, index) => {
+                // Calculate connection line activation based on rocket position
+                const connectionThreshold = (index + 4) * 20; // 80%, 100%, 120% (adjusted)
+                const isConnected = rocketPosition >= connectionThreshold - 15;
+                const connectionWidth = isConnected ? 100 : 0;
+                
+                return (
                   <div
-                    key={i}
-                    className="w-px h-4 mx-0.5"
-                    style={{
-                      backgroundColor: `hsl(${30 + Math.random() * 20}, 50%, ${40 + Math.random() * 20}%)`,
-                      transform: `translateY(${Math.sin(i * 0.5) * 2}px) rotate(${Math.random() * 10 - 5}deg)`,
-                      opacity: 0.4 + Math.random() * 0.3
-                    }}
-                  ></div>
-                ))}
-              </div>
-              
-              {/* Growth Message */}
-              <div className="text-center">
-                <p className="text-gray-600 mb-2">
-                  <span className="font-semibold" style={{ color: '#4F46E5' }}>{categories.reduce((sum, cat) => sum + cat.count, 0).toLocaleString()}+</span> courses growing from our learning rocket
-                </p>
-                <p className="text-gray-500 text-sm">
-                  Each root represents knowledge expanding in different directions
-                </p>
-              </div>
+                    key={index}
+                    className="relative group"
+                    style={{ marginTop: index === 0 ? '2rem' : '0' }}
+                  >
+                    {/* Connection Line from Category to Main Line */}
+                    <div className="absolute left-0 top-1/2 w-[100%] md:w-[200%] h-0.5 z-10">
+                      {/* Base Line */}
+                      <div className="absolute inset-0 bg-gradient-to-l from-purple-200 to-transparent"></div>
+                      
+                      {/* Animated Connection Line - activates based on rocket position */}
+                      <div 
+                        className="absolute inset-0 bg-gradient-to-l from-purple-600 to-indigo-600 transition-all duration-300"
+                        style={{ 
+                          width: `${connectionWidth}%`,
+                          opacity: isConnected ? 0.8 : 0,
+                          right: 0,
+                          boxShadow: '0 0 10px rgba(139, 92, 246, 0.5)'
+                        }}
+                      ></div>
+                    </div>
+
+                    {/* Category Card */}
+                    <div className={`relative bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 border ${isConnected ? 'border-purple-400' : 'border-purple-100'}`}>
+                      {/* Icon */}
+                      <div className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center text-3xl bg-gradient-to-br from-indigo-500 to-pink-600 text-white shadow-lg">
+                        {category.icon}
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="text-center">
+                        <h3 className="font-bold text-gray-900 mb-1">{category.name}</h3>
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-pink-600 bg-clip-text text-transparent">
+                            {category.count}
+                          </span>
+                          <span className="text-gray-500 text-sm">courses</span>
+                        </div>
+                        
+                        {/* Progress Bar */}
+                        <div className="mt-3 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-indigo-500 to-pink-600 rounded-full transition-all duration-1000"
+                            style={{ 
+                              width: isConnected ? `${Math.min((category.count / 400) * 100, 100)}%` : '0%',
+                              opacity: isConnected ? 1 : 0
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Floating Particles - React to mouse position */}
+            {[...Array(15)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full animate-pulse pointer-events-none"
+                style={{
+                  width: `${Math.random() * 4 + 1}px`,
+                  height: `${Math.random() * 4 + 1}px`,
+                  backgroundColor: `rgba(${Math.random() > 0.5 ? '139, 92, 246' : '79, 70, 229'}, ${0.3 + Math.random() * 0.5})`,
+                  left: `${30 + Math.random() * 40}%`,
+                  top: `${Math.min(rocketPosition + (Math.random() * 20 - 10), 100)}%`,
+                  animationDelay: `${i * 100}ms`,
+                  animationDuration: `${Math.random() * 3 + 2}s`,
+                  opacity: rocketPosition > 20 ? 0.6 : 0.2,
+                  transition: 'top 0.3s ease-out'
+                }}
+              ></div>
+            ))}
+          </div>
+
+          {/* Mouse Control Instructions */}
+          <div className="mt-12 text-center">
+        
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 rounded-full">
+              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+              </svg>
+         
             </div>
           </div>
         </div>
@@ -941,7 +869,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Free Courses Slider Section - Draggable & Touchable with Auto Slide */}
+      {/* Free Courses Slider Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
@@ -956,7 +884,6 @@ const Home = () => {
             </p>
           </div>
 
-          {/* Draggable Slider - No navigation buttons */}
           <div 
             className="relative max-w-5xl mx-auto overflow-hidden rounded-2xl shadow-2xl select-none touch-pan-y"
             ref={sliderRef}
@@ -1072,7 +999,6 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Dots Indicator */}
           <div className="flex justify-center gap-2 mt-6">
             {[0, 1, 2].map((index) => (
               <button
@@ -1091,8 +1017,7 @@ const Home = () => {
             ))}
           </div>
 
-          {/* View All Free Courses Button */}
-          {/* <div className="text-center mt-8">
+          <div className="text-center mt-8">
             <button 
               className="px-8 py-3 rounded-lg font-medium text-white hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 inline-flex items-center gap-2 group"
               style={{ 
@@ -1105,11 +1030,11 @@ const Home = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </button>
-          </div> */}
+          </div>
         </div>
       </section>
 
-      {/* Scroll to Top Button with Progress Circle */}
+      {/* Scroll to Top Button */}
       <button
         id="scrollToTop"
         className="fixed bottom-8 right-8 w-14 h-14 rounded-full shadow-lg z-50 flex items-center justify-center transition-all duration-300 opacity-0 scale-0 hover:scale-110 hover:shadow-xl group"
@@ -1117,7 +1042,6 @@ const Home = () => {
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         aria-label="Scroll to top"
       >
-        {/* Progress Circle */}
         <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
           <circle
             cx="50"
@@ -1141,7 +1065,6 @@ const Home = () => {
           />
         </svg>
         
-        {/* Arrow Icon */}
         <svg 
           className="relative w-6 h-6 text-white transform transition-transform duration-300 group-hover:-translate-y-1" 
           fill="none" 
@@ -1151,13 +1074,11 @@ const Home = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
         </svg>
         
-        {/* Progress Percentage */}
         <div className="absolute -top-1 -right-1 bg-white text-indigo-600 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-sm">
-          {Math.round(scrollProgress)}%
+          {Math.round(rocketPosition)}%
         </div>
       </button>
 
-      {/* Add CSS for animations */}
       <style jsx>{`
         @keyframes growLine {
           from {
@@ -1186,7 +1107,6 @@ const Home = () => {
           }
         }
 
-        /* মোবাইল ডিভাইসের জন্য স্পেসিং ফিক্স */
         @media (max-width: 768px) {
           section:first-of-type {
             margin-top: 10px;
