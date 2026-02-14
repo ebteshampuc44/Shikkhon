@@ -1,9 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 const Home = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showButton, setShowButton] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
+  
+  // Drag/slide states
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [currentTranslate, setCurrentTranslate] = useState(0);
+  const [prevTranslate, setPrevTranslate] = useState(0);
+  const sliderRef = useRef(null);
+  const autoSlideTimerRef = useRef(null);
   
   // State for counting numbers
   const [counts, setCounts] = useState({
@@ -12,23 +20,6 @@ const Home = () => {
     instructors: 0,
     satisfaction: 0
   });
-
-  // Auto-slide functionality
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % 3);
-    }, 5000); // Change slide every 5 seconds
-    
-    return () => clearInterval(timer);
-  }, []);
-
-  const nextSlide = () => {
-    setActiveSlide((prev) => (prev + 1) % 3);
-  };
-
-  const prevSlide = () => {
-    setActiveSlide((prev) => (prev - 1 + 3) % 3);
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -105,6 +96,153 @@ const Home = () => {
 
     return () => clearInterval(timer);
   }, []);
+
+  // Auto slide functionality
+  useEffect(() => {
+    startAutoSlide();
+    
+    return () => {
+      if (autoSlideTimerRef.current) {
+        clearInterval(autoSlideTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Update auto slide when activeSlide changes
+  useEffect(() => {
+    setCurrentTranslate(-activeSlide * 100);
+    setPrevTranslate(-activeSlide * 100);
+    
+    // Reset auto slide timer when manually changing slide
+    resetAutoSlide();
+  }, [activeSlide]);
+
+  const startAutoSlide = () => {
+    if (autoSlideTimerRef.current) {
+      clearInterval(autoSlideTimerRef.current);
+    }
+    
+    autoSlideTimerRef.current = setInterval(() => {
+      if (!isDragging) {
+        setActiveSlide((prev) => (prev + 1) % 3);
+      }
+    }, 5000); // Change slide every 5 seconds
+  };
+
+  const resetAutoSlide = () => {
+    if (autoSlideTimerRef.current) {
+      clearInterval(autoSlideTimerRef.current);
+    }
+    startAutoSlide();
+  };
+
+  // Drag/Slide Handlers
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+    setStartX(e.pageX - sliderRef.current.offsetLeft);
+    setPrevTranslate(currentTranslate);
+    sliderRef.current.style.cursor = 'grabbing';
+    
+    // Pause auto slide while dragging
+    if (autoSlideTimerRef.current) {
+      clearInterval(autoSlideTimerRef.current);
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    const currentX = e.pageX - sliderRef.current.offsetLeft;
+    const diff = currentX - startX;
+    const newTranslate = prevTranslate + (diff / sliderRef.current.offsetWidth) * 100;
+    
+    // Limit sliding range
+    const maxTranslate = 0;
+    const minTranslate = -200; // 3 slides = -200%
+    
+    if (newTranslate <= maxTranslate && newTranslate >= minTranslate) {
+      setCurrentTranslate(newTranslate);
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    sliderRef.current.style.cursor = 'grab';
+    
+    // Determine which slide to snap to
+    const slideWidth = 100;
+    const slideIndex = Math.round(Math.abs(currentTranslate) / slideWidth);
+    
+    // Ensure valid index
+    const newIndex = Math.min(Math.max(slideIndex, 0), 2);
+    setActiveSlide(newIndex);
+    
+    // Restart auto slide after dragging
+    resetAutoSlide();
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      handleMouseUp();
+    }
+  };
+
+  // Touch Handlers for Mobile
+  const handleTouchStart = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - sliderRef.current.offsetLeft);
+    setPrevTranslate(currentTranslate);
+    
+    // Pause auto slide while touching
+    if (autoSlideTimerRef.current) {
+      clearInterval(autoSlideTimerRef.current);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    const currentX = e.touches[0].pageX - sliderRef.current.offsetLeft;
+    const diff = currentX - startX;
+    const newTranslate = prevTranslate + (diff / sliderRef.current.offsetWidth) * 100;
+    
+    // Limit sliding range
+    const maxTranslate = 0;
+    const minTranslate = -200;
+    
+    if (newTranslate <= maxTranslate && newTranslate >= minTranslate) {
+      setCurrentTranslate(newTranslate);
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    e.preventDefault();
+    if (!isDragging) return;
+    setIsDragging(false);
+    
+    // Determine which slide to snap to
+    const slideWidth = 100;
+    const slideIndex = Math.round(Math.abs(currentTranslate) / slideWidth);
+    
+    // Ensure valid index
+    const newIndex = Math.min(Math.max(slideIndex, 0), 2);
+    setActiveSlide(newIndex);
+    
+    // Restart auto slide after touch
+    resetAutoSlide();
+  };
+
+  const handleTouchCancel = (e) => {
+    e.preventDefault();
+    if (isDragging) {
+      handleTouchEnd(e);
+    }
+  };
 
   const categories = [
     { icon: '🌾', name: 'Agriculture', count: 156 },
@@ -223,8 +361,8 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
+      {/* Hero Section - ফিক্সড ভার্সন */}
+      <section className="relative pt-24 md:pt-32 pb-16 md:pb-24 overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full opacity-20" 
@@ -249,7 +387,7 @@ const Home = () => {
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-4xl mx-auto text-center mt-8 md:mt-12">
             
             {/* Main Heading with Gradient */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
@@ -261,10 +399,10 @@ const Home = () => {
               </span>
             </h1>
 
-            {/* Animated Subheading */}
-            <div className="h-20 mb-8">
-              <p className="text-xl md:text-2xl text-gray-700 mb-4">
-                <span className="typing-effect">
+            {/* Animated Subheading - মোবাইলের জন্য ফিক্সড */}
+            <div className="h-auto min-h-[80px] md:h-20 mb-8 md:mb-10">
+              <p className="text-xl md:text-2xl text-gray-700 mb-4 px-4 md:px-0 leading-relaxed">
+                <span className="typing-effect block md:inline">
                   Join 1000+ Bangla courses, learn from experts, build your career
                 </span>
               </p>
@@ -803,7 +941,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Free Courses Slider Section */}
+      {/* Free Courses Slider Section - Draggable & Touchable with Auto Slide */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
@@ -818,163 +956,155 @@ const Home = () => {
             </p>
           </div>
 
-          {/* Slider */}
-          <div className="relative max-w-5xl mx-auto">
-            {/* Slider Container */}
-            <div className="overflow-hidden rounded-2xl shadow-2xl">
-              <div 
-                className="flex transition-transform duration-700 ease-in-out"
-                style={{ transform: `translateX(-${activeSlide * 100}%)` }}
-              >
-                {/* Slide 1 - Agriculture */}
-                <div className="min-w-full relative">
-                  <img 
-                    src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=1200&h=500&fit=crop" 
-                    alt="Agriculture Course"
-                    className="w-full h-[300px] md:h-[400px] object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-indigo-900/80 flex items-center">
-                    <div className="text-white p-8 md:p-12 max-w-2xl">
-                      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 inline-block mb-4">
-                        <span className="text-lg">🌾 Free Course</span>
+          {/* Draggable Slider - No navigation buttons */}
+          <div 
+            className="relative max-w-5xl mx-auto overflow-hidden rounded-2xl shadow-2xl select-none touch-pan-y"
+            ref={sliderRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchCancel}
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+          >
+            <div 
+              className="flex transition-transform duration-300 ease-out"
+              style={{ transform: `translateX(${currentTranslate}%)` }}
+            >
+              {/* Slide 1 - Agriculture */}
+              <div className="min-w-full relative">
+                <img 
+                  src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=1200&h=500&fit=crop" 
+                  alt="Agriculture Course"
+                  className="w-full h-[300px] md:h-[400px] object-cover pointer-events-none"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-indigo-900/80 flex items-center pointer-events-none">
+                  <div className="text-white p-8 md:p-12 max-w-2xl">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 inline-block mb-4">
+                      <span className="text-lg">🌾 Free Course</span>
+                    </div>
+                    <h3 className="text-3xl md:text-4xl font-bold mb-4">Modern Agriculture Techniques</h3>
+                    <p className="text-lg md:text-xl mb-6 text-gray-100">Learn smart farming, crop management, and sustainable agriculture practices</p>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                        <span>2.5k+ enrolled</span>
                       </div>
-                      <h3 className="text-3xl md:text-4xl font-bold mb-4">Modern Agriculture Techniques</h3>
-                      <p className="text-lg md:text-xl mb-6 text-gray-100">Learn smart farming, crop management, and sustainable agriculture practices</p>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                          </svg>
-                          <span>2.5k+ enrolled</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                          </svg>
-                          <span>Dr. Sumaiya Khan</span>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        </svg>
+                        <span>Dr. Sumaiya Khan</span>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Slide 2 - Technology */}
-                <div className="min-w-full relative">
-                  <img 
-                    src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1200&h=500&fit=crop" 
-                    alt="Programming Course"
-                    className="w-full h-[300px] md:h-[400px] object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-cyan-900/80 flex items-center">
-                    <div className="text-white p-8 md:p-12 max-w-2xl">
-                      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 inline-block mb-4">
-                        <span className="text-lg">💻 Free Course</span>
+              {/* Slide 2 - Technology */}
+              <div className="min-w-full relative">
+                <img 
+                  src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1200&h=500&fit=crop" 
+                  alt="Programming Course"
+                  className="w-full h-[300px] md:h-[400px] object-cover pointer-events-none"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-cyan-900/80 flex items-center pointer-events-none">
+                  <div className="text-white p-8 md:p-12 max-w-2xl">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 inline-block mb-4">
+                      <span className="text-lg">💻 Free Course</span>
+                    </div>
+                    <h3 className="text-3xl md:text-4xl font-bold mb-4">Programming for Beginners</h3>
+                    <p className="text-lg md:text-xl mb-6 text-gray-100">Learn Python, JavaScript, and web development from scratch</p>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                        <span>5k+ enrolled</span>
                       </div>
-                      <h3 className="text-3xl md:text-4xl font-bold mb-4">Programming for Beginners</h3>
-                      <p className="text-lg md:text-xl mb-6 text-gray-100">Learn Python, JavaScript, and web development from scratch</p>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                          </svg>
-                          <span>5k+ enrolled</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                          </svg>
-                          <span>Rafi Ahmed</span>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        </svg>
+                        <span>Rafi Ahmed</span>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Slide 3 - Freelancing */}
-                <div className="min-w-full relative">
-                  <img 
-                    src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&h=500&fit=crop" 
-                    alt="Freelancing Course"
-                    className="w-full h-[300px] md:h-[400px] object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-900/80 to-emerald-900/80 flex items-center">
-                    <div className="text-white p-8 md:p-12 max-w-2xl">
-                      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 inline-block mb-4">
-                        <span className="text-lg">💼 Free Course</span>
+              {/* Slide 3 - Freelancing */}
+              <div className="min-w-full relative">
+                <img 
+                  src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&h=500&fit=crop" 
+                  alt="Freelancing Course"
+                  className="w-full h-[300px] md:h-[400px] object-cover pointer-events-none"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-green-900/80 to-emerald-900/80 flex items-center pointer-events-none">
+                  <div className="text-white p-8 md:p-12 max-w-2xl">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 inline-block mb-4">
+                      <span className="text-lg">💼 Free Course</span>
+                    </div>
+                    <h3 className="text-3xl md:text-4xl font-bold mb-4">Freelancing Masterclass</h3>
+                    <p className="text-lg md:text-xl mb-6 text-gray-100">Learn how to start freelancing, find clients, and earn in dollars</p>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                        <span>3.8k+ enrolled</span>
                       </div>
-                      <h3 className="text-3xl md:text-4xl font-bold mb-4">Freelancing Masterclass</h3>
-                      <p className="text-lg md:text-xl mb-6 text-gray-100">Learn how to start freelancing, find clients, and earn in dollars</p>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                          </svg>
-                          <span>3.8k+ enrolled</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                          </svg>
-                          <span>Zubayer Hossain</span>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        </svg>
+                        <span>Zubayer Hossain</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Navigation Buttons */}
-            <button 
-              onClick={prevSlide}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-all duration-300 hover:scale-110 z-10"
-              aria-label="Previous slide"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button 
-              onClick={nextSlide}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-all duration-300 hover:scale-110 z-10"
-              aria-label="Next slide"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            {/* Dots Indicator */}
-            <div className="flex justify-center gap-2 mt-6">
-              {[0, 1, 2].map((index) => (
-                <button
-                  key={index}
-                  onClick={() => setActiveSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    activeSlide === index 
-                      ? 'w-8 bg-indigo-600' 
-                      : 'bg-gray-300 hover:bg-indigo-400'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-
-            {/* View All Free Courses Button */}
-            <div className="text-center mt-8">
-              <button 
-                className="px-8 py-3 rounded-lg font-medium text-white hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 inline-flex items-center gap-2 group"
-                style={{ 
-                  backgroundColor: '#4F46E5',
-                  background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'
+          {/* Dots Indicator */}
+          <div className="flex justify-center gap-2 mt-6">
+            {[0, 1, 2].map((index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setActiveSlide(index);
+                  resetAutoSlide();
                 }}
-              >
-                View All Free Courses
-                <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </button>
-            </div>
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  activeSlide === index 
+                    ? 'w-8 bg-indigo-600' 
+                    : 'bg-gray-300 hover:bg-indigo-400'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* View All Free Courses Button */}
+          <div className="text-center mt-8">
+            <button 
+              className="px-8 py-3 rounded-lg font-medium text-white hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 inline-flex items-center gap-2 group"
+              style={{ 
+                backgroundColor: '#4F46E5',
+                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'
+              }}
+            >
+              View All Free Courses
+              <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </button>
           </div>
         </div>
       </section>
@@ -1053,6 +1183,28 @@ const Home = () => {
           }
           to {
             width: var(--target-width, 100%);
+          }
+        }
+
+        /* মোবাইল ডিভাইসের জন্য স্পেসিং ফিক্স */
+        @media (max-width: 768px) {
+          section:first-of-type {
+            margin-top: 10px;
+          }
+          
+          .typing-effect {
+            margin-top: 8px;
+            line-height: 1.5;
+            display: block;
+          }
+          
+          h1 {
+            margin-bottom: 0.25rem !important;
+          }
+          
+          .container {
+            padding-left: 1rem;
+            padding-right: 1rem;
           }
         }
       `}</style>
