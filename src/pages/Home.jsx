@@ -3,6 +3,32 @@ import React, { useEffect, useState } from 'react';
 const Home = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showButton, setShowButton] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  
+  // State for counting numbers
+  const [counts, setCounts] = useState({
+    students: 0,
+    courses: 0,
+    instructors: 0,
+    satisfaction: 0
+  });
+
+  // Auto-slide functionality
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % 3);
+    }, 5000); // Change slide every 5 seconds
+    
+    return () => clearInterval(timer);
+  }, []);
+
+  const nextSlide = () => {
+    setActiveSlide((prev) => (prev + 1) % 3);
+  };
+
+  const prevSlide = () => {
+    setActiveSlide((prev) => (prev - 1 + 3) % 3);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,6 +62,48 @@ const Home = () => {
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Counting animation effect - Faster speed
+  useEffect(() => {
+    const targetNumbers = {
+      students: 50000,
+      courses: 1200,
+      instructors: 200,
+      satisfaction: 95
+    };
+
+    const duration = 1000; // 1 second
+    const steps = 40;
+    const interval = duration / steps;
+
+    let currentStep = 0;
+
+    const timer = setInterval(() => {
+      currentStep++;
+      
+      if (currentStep <= steps) {
+        const progress = currentStep / steps;
+        
+        setCounts({
+          students: Math.min(Math.floor(targetNumbers.students * progress), targetNumbers.students),
+          courses: Math.min(Math.floor(targetNumbers.courses * progress), targetNumbers.courses),
+          instructors: Math.min(Math.floor(targetNumbers.instructors * progress), targetNumbers.instructors),
+          satisfaction: Math.min(Math.floor(targetNumbers.satisfaction * progress), targetNumbers.satisfaction)
+        });
+      } else {
+        // Ensure final numbers are exact
+        setCounts({
+          students: targetNumbers.students,
+          courses: targetNumbers.courses,
+          instructors: targetNumbers.instructors,
+          satisfaction: targetNumbers.satisfaction
+        });
+        clearInterval(timer);
+      }
+    }, interval);
+
+    return () => clearInterval(timer);
   }, []);
 
   const categories = [
@@ -129,16 +197,33 @@ const Home = () => {
     },
   ];
 
-  const stats = [
-    { number: '50,000+', label: 'Active Students', icon: '👨‍🎓' },
-    { number: '1,200+', label: 'Courses', icon: '📚' },
-    { number: '200+', label: 'Instructors', icon: '👨‍🏫' },
-    { number: '95%', label: 'Satisfaction Rate', icon: '⭐' },
-  ];
+  // SVG Icons for stats
+  const StatsIcons = {
+    Students: () => (
+      <svg className="w-8 h-8 mx-auto mb-2" style={{ color: '#4F46E5' }} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+      </svg>
+    ),
+    Courses: () => (
+      <svg className="w-8 h-8 mx-auto mb-2" style={{ color: '#4F46E5' }} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/>
+      </svg>
+    ),
+    Instructors: () => (
+      <svg className="w-8 h-8 mx-auto mb-2" style={{ color: '#4F46E5' }} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-1 .05 1.16.84 2 1.87 2 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+      </svg>
+    ),
+    Satisfaction: () => (
+      <svg className="w-8 h-8 mx-auto mb-2" style={{ color: '#4F46E5' }} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+      </svg>
+    )
+  };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section - Redesigned */}
+      {/* Hero Section */}
       <section className="relative py-16 md:py-24 overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
@@ -244,11 +329,21 @@ const Home = () => {
             <div className="mt-16 pt-8 border-t border-gray-200">
               <p className="text-gray-600 mb-4">Trusted by</p>
               <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-                <div className="text-2xl">🏢</div>
-                <div className="text-2xl">🏛️</div>
-                <div className="text-2xl">🎓</div>
-                <div className="text-2xl">💼</div>
-                <div className="text-2xl">🌾</div>
+                <svg className="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 7V3H2v14h20V7H12zM6 19H4v2h16v-2H6z"/>
+                </svg>
+                <svg className="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+                </svg>
+                <svg className="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+                </svg>
+                <svg className="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-8 7c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
+                </svg>
+                <svg className="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
               </div>
             </div>
           </div>
@@ -259,18 +354,39 @@ const Home = () => {
       <div className="bg-white border-y py-8">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl mb-2">{stat.icon}</div>
-                <div className="text-3xl font-bold" style={{ color: '#4F46E5' }}>{stat.number}</div>
-                <div className="text-gray-600">{stat.label}</div>
+            <div className="text-center">
+              <StatsIcons.Students />
+              <div className="text-3xl font-bold" style={{ color: '#4F46E5' }}>
+                {counts.students.toLocaleString()}+
               </div>
-            ))}
+              <div className="text-gray-600">Active Students</div>
+            </div>
+            <div className="text-center">
+              <StatsIcons.Courses />
+              <div className="text-3xl font-bold" style={{ color: '#4F46E5' }}>
+                {counts.courses.toLocaleString()}+
+              </div>
+              <div className="text-gray-600">Courses</div>
+            </div>
+            <div className="text-center">
+              <StatsIcons.Instructors />
+              <div className="text-3xl font-bold" style={{ color: '#4F46E5' }}>
+                {counts.instructors.toLocaleString()}+
+              </div>
+              <div className="text-gray-600">Instructors</div>
+            </div>
+            <div className="text-center">
+              <StatsIcons.Satisfaction />
+              <div className="text-3xl font-bold" style={{ color: '#4F46E5' }}>
+                {counts.satisfaction}%
+              </div>
+              <div className="text-gray-600">Satisfaction Rate</div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Categories Section - Redesigned with Rocket Growing Roots */}
+      {/* Categories Section with Rocket Growing Roots */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -687,49 +803,177 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Free Courses Banner */}
+      {/* Free Courses Slider Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <div 
-            className="rounded-xl p-8 md:p-12 hover:shadow-lg transition-shadow duration-300"
-            style={{ backgroundColor: 'rgb(229,230,250)' }}
-          >
-            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-              <div className="md:w-2/3">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  Learn for Free
-                  <span 
-                    className="block"
-                    style={{ color: '#4F46E5' }}
-                  >
-                    Without any cost
-                  </span>
-                </h2>
-                <p className="text-gray-700 mb-6">
-                  Acquire basic skills from 100+ free courses. 
-                  Start today, no payment required.
-                </p>
-                <button 
-                  className="px-8 py-3 rounded-lg font-medium text-white hover:shadow-lg transition-shadow transform hover:-translate-y-0.5"
-                  style={{ 
-                    backgroundColor: '#4F46E5',
-                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'
-                  }}
-                >
-                  View Free Courses
-                </button>
-              </div>
-              
-              <div className="md:w-1/3">
-                <div 
-                  className="rounded-lg p-6 text-center hover:shadow-md transition-shadow"
-                  style={{ backgroundColor: 'rgb(233,231,253)' }}
-                >
-                  <div className="text-5xl mb-4 animate-bounce">🎓</div>
-                  <div className="text-2xl font-bold text-gray-900 mb-2">100+ Free Courses</div>
-                  <div className="text-gray-700">Free learning opportunity</div>
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Learn for Free
+              <span className="block text-2xl md:text-3xl mt-2" style={{ color: '#4F46E5' }}>
+                Without any cost
+              </span>
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Acquire basic skills from 100+ free courses. Start today, no payment required.
+            </p>
+          </div>
+
+          {/* Slider */}
+          <div className="relative max-w-5xl mx-auto">
+            {/* Slider Container */}
+            <div className="overflow-hidden rounded-2xl shadow-2xl">
+              <div 
+                className="flex transition-transform duration-700 ease-in-out"
+                style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+              >
+                {/* Slide 1 - Agriculture */}
+                <div className="min-w-full relative">
+                  <img 
+                    src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=1200&h=500&fit=crop" 
+                    alt="Agriculture Course"
+                    className="w-full h-[300px] md:h-[400px] object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-indigo-900/80 flex items-center">
+                    <div className="text-white p-8 md:p-12 max-w-2xl">
+                      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 inline-block mb-4">
+                        <span className="text-lg">🌾 Free Course</span>
+                      </div>
+                      <h3 className="text-3xl md:text-4xl font-bold mb-4">Modern Agriculture Techniques</h3>
+                      <p className="text-lg md:text-xl mb-6 text-gray-100">Learn smart farming, crop management, and sustainable agriculture practices</p>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                          </svg>
+                          <span>2.5k+ enrolled</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                          </svg>
+                          <span>Dr. Sumaiya Khan</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Slide 2 - Technology */}
+                <div className="min-w-full relative">
+                  <img 
+                    src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1200&h=500&fit=crop" 
+                    alt="Programming Course"
+                    className="w-full h-[300px] md:h-[400px] object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-cyan-900/80 flex items-center">
+                    <div className="text-white p-8 md:p-12 max-w-2xl">
+                      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 inline-block mb-4">
+                        <span className="text-lg">💻 Free Course</span>
+                      </div>
+                      <h3 className="text-3xl md:text-4xl font-bold mb-4">Programming for Beginners</h3>
+                      <p className="text-lg md:text-xl mb-6 text-gray-100">Learn Python, JavaScript, and web development from scratch</p>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                          </svg>
+                          <span>5k+ enrolled</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                          </svg>
+                          <span>Rafi Ahmed</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Slide 3 - Freelancing */}
+                <div className="min-w-full relative">
+                  <img 
+                    src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&h=500&fit=crop" 
+                    alt="Freelancing Course"
+                    className="w-full h-[300px] md:h-[400px] object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-900/80 to-emerald-900/80 flex items-center">
+                    <div className="text-white p-8 md:p-12 max-w-2xl">
+                      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 inline-block mb-4">
+                        <span className="text-lg">💼 Free Course</span>
+                      </div>
+                      <h3 className="text-3xl md:text-4xl font-bold mb-4">Freelancing Masterclass</h3>
+                      <p className="text-lg md:text-xl mb-6 text-gray-100">Learn how to start freelancing, find clients, and earn in dollars</p>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                          </svg>
+                          <span>3.8k+ enrolled</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                          </svg>
+                          <span>Zubayer Hossain</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
+
+            {/* Navigation Buttons */}
+            <button 
+              onClick={prevSlide}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-all duration-300 hover:scale-110 z-10"
+              aria-label="Previous slide"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button 
+              onClick={nextSlide}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-all duration-300 hover:scale-110 z-10"
+              aria-label="Next slide"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            {/* Dots Indicator */}
+            <div className="flex justify-center gap-2 mt-6">
+              {[0, 1, 2].map((index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveSlide(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    activeSlide === index 
+                      ? 'w-8 bg-indigo-600' 
+                      : 'bg-gray-300 hover:bg-indigo-400'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* View All Free Courses Button */}
+            <div className="text-center mt-8">
+              <button 
+                className="px-8 py-3 rounded-lg font-medium text-white hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 inline-flex items-center gap-2 group"
+                style={{ 
+                  backgroundColor: '#4F46E5',
+                  background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)'
+                }}
+              >
+                View All Free Courses
+                <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -777,7 +1021,7 @@ const Home = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
         </svg>
         
-        {/* Progress Percentage (Optional) */}
+        {/* Progress Percentage */}
         <div className="absolute -top-1 -right-1 bg-white text-indigo-600 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-sm">
           {Math.round(scrollProgress)}%
         </div>
@@ -814,17 +1058,6 @@ const Home = () => {
       `}</style>
     </div>
   );
-};
-
-// CSS animations setup on component mount
-const setupAnimations = () => {
-  useEffect(() => {
-    // Set custom CSS property for width animations
-    document.querySelectorAll('[data-width]').forEach(el => {
-      const width = el.getAttribute('data-width');
-      el.style.setProperty('--target-width', width);
-    });
-  }, []);
 };
 
 export default Home;
