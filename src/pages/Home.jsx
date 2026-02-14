@@ -1092,7 +1092,7 @@ const Home = () => {
           </div>
 
           {/* View All Free Courses Button */}
-          <div className="text-center mt-8">
+          {/* <div className="text-center mt-8">
             <button 
               className="px-8 py-3 rounded-lg font-medium text-white hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 inline-flex items-center gap-2 group"
               style={{ 
@@ -1105,7 +1105,7 @@ const Home = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </button>
-          </div>
+          </div> */}
         </div>
       </section>
 
