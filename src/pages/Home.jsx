@@ -898,7 +898,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Scroll to Top Button */}
+      {/* Scroll to Top Button - শতাংশ রিমুভ করা হয়েছে */}
       <button
         id="scrollToTop"
         className="fixed bottom-8 right-8 w-14 h-14 rounded-full shadow-lg z-50 flex items-center justify-center transition-all duration-300 opacity-0 scale-0 hover:scale-110 hover:shadow-xl group"
@@ -937,10 +937,6 @@ const Home = () => {
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
         </svg>
-        
-        <div className="absolute -top-1 -right-1 bg-white text-indigo-600 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-sm">
-          {Math.round(rocketPosition)}%
-        </div>
       </button>
 
       <style jsx>{`

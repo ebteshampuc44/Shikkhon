@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -10,9 +10,18 @@ const Navbar = () => {
     { name: 'Instructors', path: '/instructors' },
     { name: 'Blog', path: '/blog' },
     { name: 'Free Learning', path: '/free-learning' },
-    { name: 'My Class', path: '/my-class' }, // Added My Class
+    { name: 'My Class', path: '/my-class' },
     { name: 'Contact', path: '/contact' },
   ];
+
+  // নেভলিংক অ্যাক্টিভ হওয়ার জন্য কাস্টম ক্লাস
+  const getActiveClass = ({ isActive }) => {
+    return `px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/20 ${
+      isActive 
+        ? 'text-indigo-600 font-semibold bg-white/10' 
+        : 'text-gray-700'
+    }`;
+  };
 
   return (
     <div className="sticky top-0 z-50">
@@ -60,17 +69,14 @@ const Navbar = () => {
             {/* Desktop Navigation - More compact */}
             <div className="hidden lg:flex items-center space-x-1">
               {navLinks.map((link, index) => (
-                <Link
+                <NavLink
                   key={index}
                   to={link.path}
-                  className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/20"
-                  style={{ 
-                    color: link.name === 'Home' ? '#4F46E5' : '#374151',
-                    fontWeight: link.name === 'Home' ? '600' : '500'
-                  }}
+                  className={getActiveClass}
+                  end={link.path === '/'} // শুধুমাত্র হোম পেজের জন্য exact matching
                 >
                   {link.name}
-                </Link>
+                </NavLink>
               ))}
               
               <div className="w-px h-5 mx-2" style={{ background: 'rgba(0, 0, 0, 0.1)' }}></div>
@@ -164,17 +170,21 @@ const Navbar = () => {
             <div className="p-4">
               <div className="flex flex-col space-y-1.5">
                 {navLinks.map((link, index) => (
-                  <Link
+                  <NavLink
                     key={index}
                     to={link.path}
-                    className="px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-50 transition-all duration-300"
-                    style={{ 
-                      color: link.name === 'Home' ? '#4F46E5' : '#374151'
-                    }}
+                    className={({ isActive }) => 
+                      `px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ${
+                        isActive 
+                          ? 'bg-indigo-100 text-indigo-600 font-semibold' 
+                          : 'text-gray-700 hover:bg-indigo-50'
+                      }`
+                    }
                     onClick={() => setIsMenuOpen(false)}
+                    end={link.path === '/'}
                   >
                     {link.name}
-                  </Link>
+                  </NavLink>
                 ))}
                 
                 <div className="divider my-1" style={{ borderColor: '#e5e7eb' }}></div>
