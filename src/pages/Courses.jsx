@@ -34,9 +34,10 @@ const Courses = () => {
       id: 1,
       title: 'Complete Web Development Course With Programming Hero',
       instructor: 'Jhankar Mahbub',
-      price: '৳ 5500',
+      price: '৫,৫০০',
+      currency: '৳',
       status: 'Registration Closed',
-      dateRange: '9th Dec - 24th Dec, 2025',
+      dateRange: '৯ই ডিসেম্বর - ২৪শে ডিসেম্বর, ২০২৫',
       category: 'programming-6-12',
       categoryLabel: 'Programming Class 6-12',
       tag: 'Bestseller',
@@ -47,9 +48,10 @@ const Courses = () => {
       id: 2,
       title: 'Python Programming for Beginners',
       instructor: 'Shakib Ahmed',
-      price: '৳ 3500',
+      price: '৩,৫০০',
+      currency: '৳',
       status: 'Registration Open',
-      dateRange: '15th Dec - 30th Dec, 2025',
+      dateRange: '১৫ই ডিসেম্বর - ৩০শে ডিসেম্বর, ২০২৫',
       category: 'programming-6-12',
       categoryLabel: 'Programming Class 6-12',
       tag: 'Popular',
@@ -62,9 +64,10 @@ const Courses = () => {
       id: 3,
       title: 'HSC Physics 1st & 2nd Paper (Complete Course)',
       instructor: 'Prof. Dr. Abdur Rahman',
-      price: '৳ 4500',
+      price: '৪,৫০০',
+      currency: '৳',
       status: 'Registration Open',
-      dateRange: '5th Jan - 20th Jan, 2026',
+      dateRange: '৫ই জানুয়ারি - ২০শে জানুয়ারি, ২০২৬',
       category: 'hsc',
       categoryLabel: 'HSC',
       tag: 'Featured',
@@ -75,9 +78,10 @@ const Courses = () => {
       id: 4,
       title: 'HSC Chemistry (Organic & Inorganic)',
       instructor: 'Dr. Farzana Akter',
-      price: '৳ 4200',
+      price: '৪,২০০',
+      currency: '৳',
       status: 'Registration Open',
-      dateRange: '10th Jan - 30th Jan, 2026',
+      dateRange: '১০ই জানুয়ারি - ৩০শে জানুয়ারি, ২০২৬',
       category: 'hsc',
       categoryLabel: 'HSC',
       tag: 'Bestseller',
@@ -88,9 +92,10 @@ const Courses = () => {
       id: 5,
       title: 'HSC Mathematics (Higher Math)',
       instructor: 'Shahidul Islam',
-      price: '৳ 4800',
+      price: '৪,৮০০',
+      currency: '৳',
       status: 'Registration Closing Soon',
-      dateRange: '12th Dec - 28th Dec, 2025',
+      dateRange: '১২ই ডিসেম্বর - ২৮শে ডিসেম্বর, ২০২৫',
       category: 'hsc',
       categoryLabel: 'HSC',
       tag: 'Hot',
@@ -103,9 +108,10 @@ const Courses = () => {
       id: 6,
       title: 'University Admission Prep (Science)',
       instructor: 'Rafiqul Islam',
-      price: '৳ 6000',
+      price: '৬,০০০',
+      currency: '৳',
       status: 'Registration Open',
-      dateRange: '1st Dec - 15th Dec, 2025',
+      dateRange: '১লা ডিসেম্বর - ১৫ই ডিসেম্বর, ২০২৫',
       category: 'university',
       categoryLabel: 'University',
       tag: 'New',
@@ -118,9 +124,10 @@ const Courses = () => {
       id: 7,
       title: 'BCS Preliminary Course',
       instructor: 'Tanvir Hasan',
-      price: '৳ 5500',
+      price: '৫,৫০০',
+      currency: '৳',
       status: 'Registration Open',
-      dateRange: '1st Jan - 20th Jan, 2026',
+      dateRange: '১লা জানুয়ারি - ২০শে জানুয়ারি, ২০২৬',
       category: 'job-preparation',
       categoryLabel: 'Job Preparation',
       tag: 'Popular',
@@ -131,9 +138,10 @@ const Courses = () => {
       id: 8,
       title: 'Bank Job Preparation Course',
       instructor: 'Mahmudul Hasan',
-      price: '৳ 5000',
+      price: '৫,০০০',
+      currency: '৳',
       status: 'Registration Open',
-      dateRange: '5th Jan - 25th Jan, 2026',
+      dateRange: '৫ই জানুয়ারি - ২৫শে জানুয়ারি, ২০২৬',
       category: 'job-preparation',
       categoryLabel: 'Job Preparation',
       tag: 'Trending',
@@ -146,9 +154,10 @@ const Courses = () => {
       id: 9,
       title: 'Digital Marketing Masterclass',
       instructor: 'Ahmed Rasel',
-      price: '৳ 4500',
+      price: '৪,৫০০',
+      currency: '৳',
       status: 'Registration Closing Soon',
-      dateRange: '15th Dec - 30th Dec, 2025',
+      dateRange: '১৫ই ডিসেম্বর - ৩০শে ডিসেম্বর, ২০২৫',
       category: 'skill-development',
       categoryLabel: 'Skill Development',
       tag: 'Trending',
@@ -161,9 +170,10 @@ const Courses = () => {
       id: 10,
       title: 'English Language Course (IELTS)',
       instructor: 'Nishat Jahan',
-      price: '৳ 4000',
+      price: '৪,০০০',
+      currency: '৳',
       status: 'Registration Open',
-      dateRange: '10th Jan - 30th Jan, 2026',
+      dateRange: '১০ই জানুয়ারি - ৩০শে জানুয়ারি, ২০২৬',
       category: 'language',
       categoryLabel: 'Language Courses',
       tag: 'New',
@@ -174,9 +184,10 @@ const Courses = () => {
       id: 11,
       title: 'Arabic Language Course',
       instructor: 'Muhammad Abdullah',
-      price: '৳ 3800',
+      price: '৩,৮০০',
+      currency: '৳',
       status: 'Registration Open',
-      dateRange: '5th Jan - 25th Jan, 2026',
+      dateRange: '৫ই জানুয়ারি - ২৫শে জানুয়ারি, ২০২৬',
       category: 'language',
       categoryLabel: 'Language Courses',
       tag: 'Popular',
@@ -329,7 +340,7 @@ const Courses = () => {
         {/* Morphing Grid Layout - Smaller Cards */}
         <div 
           ref={gridRef}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 relative"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 relative pb-16"
         >
           {filteredCourses.length > 0 ? (
             filteredCourses.map((course, index) => (
@@ -464,10 +475,12 @@ const Courses = () => {
                       </span>
                     </div>
 
-                    {/* Price and Status - Smaller */}
+                    {/* Price and Status - Fixed Currency Symbol */}
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-baseline gap-0.5">
-                        <span className="text-base font-bold text-gray-800">{course.price}</span>
+                        <span className="text-base font-bold text-gray-800">
+                          {course.currency} {course.price}
+                        </span>
                         <span className="text-[8px] text-gray-400">BDT</span>
                       </div>
                       <span className={`text-[8px] font-semibold px-2 py-0.5 rounded-full ${getStatusColor(course.status)}`}>
@@ -475,7 +488,7 @@ const Courses = () => {
                       </span>
                     </div>
 
-                    {/* Modern Button - Smaller */}
+                    {/* Modern Button - Fixed Text */}
                     <button 
                       className={`relative w-full py-2.5 text-sm font-semibold rounded-lg overflow-hidden group/btn transition-all duration-300 ${
                         course.status === 'Registration Closed' 
@@ -501,12 +514,7 @@ const Courses = () => {
 
                       <span className="relative z-10 flex items-center justify-center gap-1">
                         {course.status === 'Registration Closed' ? '🔒' : '✨'}
-                        {course.status === 'Registration Closed' ? 'Closed' : 'Enroll'}
-                        {course.status !== 'Registration Closed' && (
-                          <span className="transform transition-transform duration-300 group-hover/btn:translate-x-1 text-xs">
-                            →
-                          </span>
-                        )}
+                        {course.status === 'Registration Closed' ? 'Closed' : 'Enroll →'}
                       </span>
                       
                       {/* Animated Border - Light Version */}
