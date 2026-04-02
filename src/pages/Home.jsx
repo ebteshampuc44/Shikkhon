@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 const Home = () => {
-  const [mouseY, setMouseY] = useState(0);
-  const [rocketPosition, setRocketPosition] = useState(0);
   const [showButton, setShowButton] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   
@@ -13,7 +11,6 @@ const Home = () => {
   const [prevTranslate, setPrevTranslate] = useState(0);
   const sliderRef = useRef(null);
   const autoSlideTimerRef = useRef(null);
-  const rocketSectionRef = useRef(null);
   
   // State for counting numbers
   const [counts, setCounts] = useState({
@@ -22,30 +19,6 @@ const Home = () => {
     instructors: 0,
     satisfaction: 0
   });
-
-  // Track mouse position for rocket
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (rocketSectionRef.current) {
-        const sectionRect = rocketSectionRef.current.getBoundingClientRect();
-        const sectionTop = sectionRect.top;
-        const sectionHeight = sectionRect.height;
-        
-        // Calculate mouse position relative to section (0 to 100%)
-        const relativeY = ((e.clientY - sectionTop) / sectionHeight) * 100;
-        
-        // Clamp between 0 and 100
-        const clampedY = Math.min(100, Math.max(0, relativeY));
-        setMouseY(clampedY);
-        
-        // Update rocket position - reverse direction (top to bottom)
-        setRocketPosition(clampedY);
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   // Handle scroll for button
   useEffect(() => {
@@ -496,91 +469,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Rocket Section with Mouse Control */}
-      <section ref={rocketSectionRef} className="py-16 relative">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Explore Learning Paths</h2>
-            <p className="text-gray-600">Move your mouse up and down to control the rocket!</p>
-          </div>
-          
-          <div className="relative min-h-[600px] md:min-h-[700px]">
-            {/* Vertical Line */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full z-0">
-              <div className="absolute inset-0 bg-gradient-to-b from-purple-200 via-indigo-200 to-transparent"></div>
-              
-              {/* Animated Line that follows mouse */}
-              <div 
-                className="absolute top-0 left-0 w-full bg-gradient-to-b from-purple-600 via-indigo-600 to-pink-600 transition-all duration-100 ease-out"
-                style={{ 
-                  height: `${rocketPosition}%`,
-                  boxShadow: '0 0 20px rgba(139, 92, 246, 0.5)'
-                }}
-              >
-                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
-              </div>
-            </div>
-
-            {/* Mouse-Controlled Rocket */}
-            <div 
-              className="absolute left-1/2 transform -translate-x-1/2 z-20 transition-all duration-100 ease-out"
-              style={{ 
-                top: `${rocketPosition}%`,
-              }}
-            >
-              <div className="relative">
-                {/* Rocket Body */}
-                <div className="text-5xl animate-bounce" style={{ animationDuration: '1s' }}>
-                  🚀
-                </div>
-                
-                {/* Rocket Flame */}
-                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-                  <div className="flex flex-col items-center">
-                    {[...Array(3)].map((_, i) => (
-                      <div 
-                        key={i}
-                        className="w-3 h-6 rounded-t-full animate-pulse"
-                        style={{ 
-                          backgroundColor: i === 0 ? '#F59E0B' : 
-                                         i === 1 ? '#F97316' : '#EF4444',
-                          animationDelay: `${i * 100}ms`,
-                          marginTop: `-${i * 2}px`,
-                          opacity: 0.8 - (i * 0.2)
-                        }}
-                      ></div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Connection Points */}
-                <div className="absolute -left-1 top-1/2 w-4 h-0.5 bg-purple-500"></div>
-                <div className="absolute -right-1 top-1/2 w-4 h-0.5 bg-purple-500"></div>
-              </div>
-            </div>
-
-            {/* Floating Particles - React to mouse position */}
-            {[...Array(15)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute rounded-full animate-pulse pointer-events-none"
-                style={{
-                  width: `${Math.random() * 4 + 1}px`,
-                  height: `${Math.random() * 4 + 1}px`,
-                  backgroundColor: `rgba(${Math.random() > 0.5 ? '139, 92, 246' : '79, 70, 229'}, ${0.3 + Math.random() * 0.5})`,
-                  left: `${30 + Math.random() * 40}%`,
-                  top: `${Math.min(rocketPosition + (Math.random() * 20 - 10), 100)}%`,
-                  animationDelay: `${i * 100}ms`,
-                  animationDuration: `${Math.random() * 3 + 2}s`,
-                  opacity: rocketPosition > 20 ? 0.6 : 0.2,
-                  transition: 'top 0.3s ease-out'
-                }}
-              ></div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Featured Courses */}
       <section style={{ backgroundColor: 'rgb(233,231,253)' }} className="py-16">
         <div className="container mx-auto px-4">
@@ -898,7 +786,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Scroll to Top Button - শতাংশ রিমুভ করা হয়েছে */}
+      {/* Scroll to Top Button */}
       <button
         id="scrollToTop"
         className="fixed bottom-8 right-8 w-14 h-14 rounded-full shadow-lg z-50 flex items-center justify-center transition-all duration-300 opacity-0 scale-0 hover:scale-110 hover:shadow-xl group"
