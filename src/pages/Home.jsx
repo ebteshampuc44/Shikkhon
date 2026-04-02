@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 const Home = () => {
-  const [showButton, setShowButton] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   
   // Drag/slide states
@@ -19,40 +18,6 @@ const Home = () => {
     instructors: 0,
     satisfaction: 0
   });
-
-  // Handle scroll for button
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const scrollPercent = (scrollTop / scrollHeight) * 100;
-      
-      setShowButton(scrollPercent > 10);
-      
-      const progressCircle = document.getElementById('progressCircle');
-      if (progressCircle) {
-        const circumference = 2 * Math.PI * 45;
-        const offset = circumference - (scrollPercent / 100) * circumference;
-        progressCircle.style.strokeDashoffset = offset;
-      }
-      
-      const button = document.getElementById('scrollToTop');
-      if (button) {
-        if (scrollPercent > 10) {
-          button.classList.remove('opacity-0', 'scale-0');
-          button.classList.add('opacity-100', 'scale-100');
-        } else {
-          button.classList.remove('opacity-100', 'scale-100');
-          button.classList.add('opacity-0', 'scale-0');
-        }
-      }
-    };
-
-    handleScroll();
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Counting animation effect
   useEffect(() => {
@@ -785,47 +750,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* Scroll to Top Button */}
-      <button
-        id="scrollToTop"
-        className="fixed bottom-8 right-8 w-14 h-14 rounded-full shadow-lg z-50 flex items-center justify-center transition-all duration-300 opacity-0 scale-0 hover:scale-110 hover:shadow-xl group"
-        style={{ backgroundColor: '#4F46E5' }}
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        aria-label="Scroll to top"
-      >
-        <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-          <circle
-            cx="50"
-            cy="50"
-            r="45"
-            fill="none"
-            stroke="rgba(255, 255, 255, 0.3)"
-            strokeWidth="4"
-          />
-          <circle
-            id="progressCircle"
-            cx="50"
-            cy="50"
-            r="45"
-            fill="none"
-            stroke="white"
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeDasharray="283"
-            strokeDashoffset="283"
-          />
-        </svg>
-        
-        <svg 
-          className="relative w-6 h-6 text-white transform transition-transform duration-300 group-hover:-translate-y-1" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-        </svg>
-      </button>
 
       <style jsx>{`
         @keyframes growLine {
